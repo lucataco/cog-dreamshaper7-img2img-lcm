@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+import torch
+from diffusers import AutoPipelineForImage2Image, LCMScheduler
+
+MODEL_CACHE = "model-cache"
+
+pipe = AutoPipelineForImage2Image.from_pretrained(
+    "Lykon/dreamshaper-7",
+    torch_dtype=torch.float16,
+    variant="fp16",
+)
+
+# Set scheduler
+pipe.scheduler = LCMScheduler.from_config(pipe.scheduler.config)
+
+# load LCM-LoRA
+pipe.load_lora_weights("latent-consistency/lcm-lora-sdv1-5")
+pipe.fuse_lora()
+
+pipe.save_pretrained(MODEL_CACHE)
